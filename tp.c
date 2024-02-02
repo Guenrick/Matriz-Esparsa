@@ -15,7 +15,7 @@ int** alocaMatriz(int m, int n){
     return matriz;
 }
 
-void imprimeCabecalhocol(int *qnumero, int tamanhocol, int** matcol, int numspc){
+void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc){
     int maiornum = matcol[0][0];
     int maiorq = qnumero[0];   
     //Verifica qual o maior valor da matriz para conferir se é maior que 10.
@@ -80,7 +80,7 @@ void imprimeCabecalhocol(int *qnumero, int tamanhocol, int** matcol, int numspc)
     printf("\n");
 }
 
-void imprimeCabecalholin(int *qnumero, int tamanholin, int** matlin, int maiorq, int maiornum, char **matc,int tamcol){   
+void imprimeCabecalholin(int *qnumero, int tamanholin, int **matlin, int maiorq, int maiornum, char **matc,int tamcol){   
     int qtespaco;
     for (int i = 0; i < tamanholin; i++){
         qtespaco = maiorq - qnumero[i];
@@ -95,7 +95,7 @@ void imprimeCabecalholin(int *qnumero, int tamanholin, int** matlin, int maiorq,
             }
             printf(" %c ", 'A'+i);
             
-            //Imprime a matriz do arquivo.
+            //Imprime a matriz do entrada.
             for (int l = 0; l < tamcol; l++){
                 printf(" %c ", matc[i][l]);
             }
@@ -117,13 +117,10 @@ void imprimeCabecalholin(int *qnumero, int tamanholin, int** matlin, int maiorq,
     }
 }
 
-
-
-
 int valida(char corlin, char corcol, int tamlin, int tamcol){
     char maiorlin = 'A' + tamlin, maiorcol = 'A' + tamcol;
     //int cont;
-    
+     
     // Verificando se foi adicionada alguma letra que nao esta presente no nonograma.
     if (corlin >= maiorlin || corcol >= maiorcol){
         printf("\n\nArgumento invalido!\nLetra ou sequencia de letras nao compativeis com o jogo!\n\n");
@@ -143,24 +140,60 @@ int valida(char corlin, char corcol, int tamlin, int tamcol){
     return 1;
 }
 
-int main(int argc, char **argv){
-    //Abrindo o arquivo.
-    FILE *arquivo = fopen(argv[1],"r");
+void salvaNonograma(char nomearq, int **lin, int **col, int tamlin, int tamcol, int *qtnumlin, int *qtnumcol, char **matc){
+    FILE *salva = fopen(nomearq, "w");
+    // Salva linha e coluna.
+    fprintf(salva,"%d %d", tamlin, tamcol);
 
-    //Armazena a arquivo da matriz.
+    // Salva o cabecalho das linhas.
+    for(int i = 0; i < tamlin; i++){
+        fprintf(salva,"%d ", qtnumlin[i]);
+        
+        for (int j = 0; j < qtnumlin[i]; j++){           
+            fprintf(salva, "%d ", lin[i][j]);
+        }
+        printf("\n");   
+    }
+
+    // Salva o cabecalho das colunas.
+    for(int i = 0; i < tamcol; i++){
+        fprintf(salva, "%d ",qtnumcol[i]);
+    
+        for (int j = 0; j < qtnumcol[i]; j++){
+            fprintf(salva, "%d ", col[i][j]);
+        }   
+        printf("\n");
+    }
+
+    // Salva a matriz de char editada pelo usuario.
+    for (int i = 0; i < tamlin; i++){
+        for (int j = 0; j < tamcol; j++){
+            //__fpurge
+            fprintf(salva, "%c ", matc[i][j]);
+        }
+        printf("\n");
+    }   
+    fclose(salva);
+}
+int main(int argc, char **argv){
+    // Abrindo o arquivo.
+    FILE *entrada = fopen(argv[1],"r");
+    
+    // Armazena a entrada da matriz.
     int tamlin, tamcol;
-    fscanf(arquivo,"%d %d", &tamlin, &tamcol);
+    fscanf(entrada,"%d %d", &tamlin, &tamcol);
     
     int **lin, *qtnumlin; //Os qts vao funcionar como um regulador dos prints. Devo olhar qual é o maior para saber os espacos
     
     qtnumlin = malloc(tamlin * sizeof(int));
     lin = malloc(tamlin * sizeof(int*));
     
+    // Armazena os valores da matriz da linha (lin), juntamente com a quantidade de valores por linha(qtnumlin). 
     for(int i = 0; i < tamlin; i++){
-        fscanf(arquivo,"%d",&qtnumlin[i]);
-        lin[i] = malloc(qtnumlin[i] * sizeof(int)); //erro aqui, segmentation faultt
+        fscanf(entrada,"%d",&qtnumlin[i]);
+        lin[i] = malloc(qtnumlin[i] * sizeof(int)); //???
         for (int j = 0; j < qtnumlin[i]; j++){           
-            fscanf(arquivo, "%d", &lin[i][j]);
+            fscanf(entrada, "%d", &lin[i][j]);
         }   
     }        
     
@@ -200,17 +233,16 @@ int main(int argc, char **argv){
     col = malloc(tamcol * sizeof(int*));
     
     for(int i = 0; i < tamcol; i++){
-        fscanf(arquivo, "%d",&qtnumcol[i]);
+        fscanf(entrada, "%d",&qtnumcol[i]);
         col[i] = malloc(qtnumcol[i] * sizeof(int));
         for (int j = 0; j < qtnumcol[i]; j++){
-            fscanf(arquivo, "%d", &col[i][j]);
+            fscanf(entrada, "%d", &col[i][j]);
         }   
     }   
-    //Declarando a matriz que sera mudada.
     // talvez eu tenha que perguntar antes dessa parte(na real é obvio, pq vou acessar o print em um forzao)
     //mas num geral acho q da pra fazer aqui em baixo msm
     
-    //Armazena a matriz que sera alterada.
+    // Armazena a matriz de caracteres (a que sera alterada).
     char **matc = malloc(tamlin * sizeof(char*)), rechar;
     for (int i = 0; i < tamlin; i++){
         matc[i] = malloc(tamcol * sizeof(char));
@@ -218,7 +250,7 @@ int main(int argc, char **argv){
     for (int i = 0; i < tamlin; i++){
         for (int j = 0; j < tamcol; j++){
             //__fpurge
-            fscanf(arquivo, "%c", &rechar);
+            fscanf(entrada, "%c", &rechar);
             if(rechar == '\n' || rechar == ' '){
             j--;
             continue;
@@ -228,7 +260,7 @@ int main(int argc, char **argv){
     }
     
 
-    //talvez seja util retornar util retornar as matrizes
+    //talvez seja util retornar matrizes
     
     // Comecando o Jogo.
     printf("\n\nBem vindo ao Nonograma! \n\n"); 
@@ -236,7 +268,7 @@ int main(int argc, char **argv){
     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
 
     // Looping de comandos.
-    char comando[9], corlin, corcol; //o comando em si pode ter no maximo 8 caracteres
+    char comando[9], corlin, corcol, nomearq[250]; //o comando em si pode ter no maximo 8 caracteres
     int val; // Esta variavel serve para retornar a validacao.
     do{
         printf("\n\nDigite um comando: ");
@@ -313,6 +345,24 @@ int main(int argc, char **argv){
             continue;
         }
 
+        // Comando para salvar o jogo.
+        if(strcmp(comando,"salvar") == 0){
+            //__fpurge(stdin);
+            scanf("%s", nomearq);
+            salvaNonograma(nomearq, lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
+            printf("\n\n");
+            val = valida(corlin, corcol, tamlin, tamcol);
+            if(val == 0){
+                imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
+                imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                continue;
+            }
+            matc[corlin - 'A'][corcol - 'A'] = '-';
+            imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
+            imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+            continue;
+        }
+        
         // Comando para sair do jogo.
         if(strcmp(comando,"sair") == 0){
             return 0;        
@@ -320,10 +370,11 @@ int main(int argc, char **argv){
 
     } while (1);
     
-    //Fechando arquivos
-    fclose(arquivo);
 
-    //Limpando todas as variaveis alocadas
+    // Fechando arquivo de entrada.
+    fclose(entrada);
+
+    // Limpando memoria de todas as variaveis alocadas
     for (int i = 0; i < tamcol; i++){
         free(matc[i]);
     }
