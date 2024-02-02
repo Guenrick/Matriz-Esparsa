@@ -140,10 +140,12 @@ int valida(char corlin, char corcol, int tamlin, int tamcol){
     return 1;
 }
 
-void salvaNonograma(char nomearq, int **lin, int **col, int tamlin, int tamcol, int *qtnumlin, int *qtnumcol, char **matc){
+void salvaNonograma(char nomearq[], int **lin, int **col, int tamlin, int tamcol, int *qtnumlin, int *qtnumcol, char **matc){
     FILE *salva = fopen(nomearq, "w");
+    
     // Salva linha e coluna.
-    fprintf(salva,"%d %d", tamlin, tamcol);
+    fprintf(salva,"%d %d ", tamlin, tamcol);
+    fprintf(salva, "\n");   
 
     // Salva o cabecalho das linhas.
     for(int i = 0; i < tamlin; i++){
@@ -152,7 +154,7 @@ void salvaNonograma(char nomearq, int **lin, int **col, int tamlin, int tamcol, 
         for (int j = 0; j < qtnumlin[i]; j++){           
             fprintf(salva, "%d ", lin[i][j]);
         }
-        printf("\n");   
+        fprintf(salva, "\n");   
     }
 
     // Salva o cabecalho das colunas.
@@ -162,19 +164,21 @@ void salvaNonograma(char nomearq, int **lin, int **col, int tamlin, int tamcol, 
         for (int j = 0; j < qtnumcol[i]; j++){
             fprintf(salva, "%d ", col[i][j]);
         }   
-        printf("\n");
+        fprintf(salva, "\n");   
     }
 
     // Salva a matriz de char editada pelo usuario.
     for (int i = 0; i < tamlin; i++){
         for (int j = 0; j < tamcol; j++){
             //__fpurge
+            fflush(stdin);
             fprintf(salva, "%c ", matc[i][j]);
         }
-        printf("\n");
+        fprintf(salva, "\n");   
     }   
     fclose(salva);
 }
+
 int main(int argc, char **argv){
     // Abrindo o arquivo.
     FILE *entrada = fopen(argv[1],"r");
@@ -263,6 +267,13 @@ int main(int argc, char **argv){
     //talvez seja util retornar matrizes
     
     // Comecando o Jogo.
+    printf("\nComandos e argumentos necessarios para jogar:\n");
+    printf("\nComando   Argumento   Resultado");
+    printf("\nx         AC          Preenche a célula da linha A e coluna C com um x.");
+    printf("\n-         EC          Preenche a célula da linha E e coluna C com um -");
+    printf("\n.         BA          Limpa a célula da linha B e coluna A.");
+    printf("\nsalvar    out.txt     Salva o Nonograma tal como está no momento no arquivo “out.txt");
+    printf("\nsair                  Encerra o programa (sem salvar as últimas alterações).\n");
     printf("\n\nBem vindo ao Nonograma! \n\n"); 
     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
@@ -273,6 +284,7 @@ int main(int argc, char **argv){
     do{
         printf("\n\nDigite um comando: ");
         fflush(stdin);
+        //__fpurge(stdin);
         scanf(" %8s", comando); //quando passa do valor limite ele fica bugado. se eu aumentar o tamanho funciona, mas conferir.
         //da pra deixar ele um pouco maior, e conferir se ele passa de oito. Dessa forma, da ate pra aparecer uma mensagem
         //especifica.
@@ -290,14 +302,9 @@ int main(int argc, char **argv){
         // Substituindo por "x".
         if(strcmp(comando,"x") == 0){
             //verifica se tem espaco depois do c corlin. Se tiver ja tem que aparecer que é inválido.
-
-            
+            //__fpurge(stdin); 
             scanf(" %c %c", &corlin, &corcol);
-            // if (isspace(c)) {
-            //     printf("Erro: Argumentos ausentes após o comando 'x'.\n");
-            //     continue;
-            // }
-            
+           
             printf("\n\n");
             // Validacao dos argumentos.
             val = valida(corlin, corcol, tamlin, tamcol);
@@ -315,6 +322,7 @@ int main(int argc, char **argv){
 
         // Substituindo por "-".
         if(strcmp(comando,"-") == 0){
+            //__fpurge(stdin);
             scanf(" %c %c", &corlin, &corcol);
             printf("\n\n");
             val = valida(corlin, corcol, tamlin, tamcol);
@@ -331,6 +339,7 @@ int main(int argc, char **argv){
         
         // Substituindo por ".".
         if(strcmp(comando,".") == 0){
+            //__fpurge(stdin);
             scanf(" %c %c", &corlin, &corcol);
             printf("\n\n");
             val = valida(corlin, corcol, tamlin, tamcol);
@@ -348,18 +357,9 @@ int main(int argc, char **argv){
         // Comando para salvar o jogo.
         if(strcmp(comando,"salvar") == 0){
             //__fpurge(stdin);
-            scanf("%s", nomearq);
+            scanf(" %s", nomearq);
             salvaNonograma(nomearq, lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
-            printf("\n\n");
-            val = valida(corlin, corcol, tamlin, tamcol);
-            if(val == 0){
-                imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
-                imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
-                continue;
-            }
-            matc[corlin - 'A'][corcol - 'A'] = '-';
-            imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
-            imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+            printf("Nonograma salvo com sucesso! ");
             continue;
         }
         
