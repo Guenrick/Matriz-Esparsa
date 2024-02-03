@@ -384,8 +384,14 @@ int main(int argc, char **argv){
         free(lin[i]);
     }
     free(lin);
+    
     free(qtnumlin);
     free(qtnumcol);
-    liberaMatriz(col, tamcol);
+    
+    for (int i = 0; i < tamcol; i++){
+        free(col[i]);
+    }
+    free(col);
+    
     return 0;
 }
