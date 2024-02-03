@@ -386,6 +386,6 @@ int main(int argc, char **argv){
     free(lin);
     free(qtnumlin);
     free(qtnumcol);
-    //liberaMatriz(col, tamcol);
+    liberaMatriz(col, tamcol);
     return 0;
 }
