@@ -78,6 +78,8 @@ void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc)
         printf("%c  ", 'A' + i);
     }
     printf("\n");
+    free(vdespc);
+    free(vdespcaux);
 }
 
 void imprimeCabecalholin(int *qnumero, int tamanholin, int **matlin, int maiorq, int maiornum, char **matc,int tamcol){   
