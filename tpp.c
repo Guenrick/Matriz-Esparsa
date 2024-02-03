@@ -172,8 +172,7 @@ void salvaNonograma(char nomearq[], int **lin, int **col, int tamlin, int tamcol
     // Salva a matriz de char editada pelo usuario.
     for (int i = 0; i < tamlin; i++){
         for (int j = 0; j < tamcol; j++){
-            //__fpurge
-            (stdin);
+            //__fpurge (stdin);
             fprintf(salva, "%c ", matc[i][j]);
         }
         fprintf(salva, "\n");   
