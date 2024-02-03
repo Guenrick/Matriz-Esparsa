@@ -367,7 +367,7 @@ int main(int argc, char **argv){
         
         // Comando para sair do jogo.
         if(strcmp(comando,"sair") == 0){
-            return 0;        
+            break;        
         }
 
     } while (1);
