@@ -148,22 +148,30 @@ int valida(char arg[], int tamlin, int tamcol){
 void printaValidacao(int val){
     // Verifica se ha espacamento ou se so foi digitada uma letra. COLOCAR PRA VERFICAR SE APERTOU ENTER DIRETO
     if (val == 1){
-        printf("\n\nLetras insuficientes para o argumento, ou espacamento incorreto!\n\n");
+        printf("\nLetras insuficientes para o argumento, ou espacamento incorreto!\n");
     }
     
     // Verifica se o usuario colocou mais de duas letras no argumento.
     if (val == 2){
-        printf("\n\nArgumento invalido! \nSo sao aceitas duas letras no argumento!\n\n");
+        printf("\nArgumento invalido! \nSo sao aceitas duas letras no argumento!\n");
     }   
     
     // Verificando se foi adicionada alguma letra que nao esta presente no nonograma.
     if (val == 3){
-        printf("\n\nArgumento invalido!\nLetra ou sequencia de letras nao compativeis com o jogo!\n\n");
+        printf("\nArgumento invalido!\nLetra ou sequencia de letras nao compativeis com o jogo!\n");
     }
     
     // Verificando se algum caractere invalido foi digitado.
     if(val == 4){
-        printf("\n\nArgumento invalido!\nCaractere nao disponivel no jogo!\n\n");
+        printf("\nArgumento invalido!\nCaractere nao disponivel no jogo!\n");
+    }
+
+     if(val == 5){
+        printf("\nA linha alcancou seu numero maximo! \n");
+    }
+
+     if(val == 6){
+        printf("\nA coluna alcancou seu numero maximo! \n");
     }
 }
 
@@ -210,20 +218,105 @@ void salvaNonograma(char nomearq[], int **lin, int **col, int tamlin, int tamcol
         fprintf(salva, "\n");   
     }   
     fclose(salva);
-    printf("\nNonograma salvo com sucesso! ");
+    printf("\n\nNonograma salvo com sucesso! ");
 }
 
-int regrasNonograma(int **lin, int **col, int tamlin, int tamcol, int **qtnumlin, int **qtnumcol, char **matc){
-    //para a linha
-
-
+int regrasNonograma(int **lin, int **col, int linaces, int colaces, int tamlin, int tamcol, int *qtnumlin, int *qtnumcol, char **matc){
+    int contaxlin = 0, contaxcol = 0, somalin = 0, somacol = 0;
+    
+    // Soma linha
+    for (int j = 0; j < qtnumlin[linaces]; j++){
+        somalin += lin[linaces][j];
+    }
+    
+    // Conta se a linha ja alcancou seu numero maximo. 
+    for (int i = 0; i < tamcol; i++){
+        if (matc[linaces][i] == 'x'){
+            contaxlin++;
+        }
+    
+        if (contaxlin >= somalin){
+            return 5;
+        }    
+    }
+   
+    
+    // Soma Coluna
+    for (int j = 0; j < qtnumcol[colaces]; j++){
+        somacol += col[colaces][j];
+    }
+    
+    // Conta se a coluna ja alcancou seu numero maximo. 
+    for (int i = 0; i < tamlin; i++){
+        if (matc[i][colaces] == 'x'){
+            contaxcol++;
+        }
+    
+        if (contaxcol >= somacol){
+            return 6;
+        }    
+    }
+    
     // Retorna 0 caso nenhuma regra tenha sido quebrada.
     return 0;
+}
+
+void verificaGanhou(int **lin, int **col, int tamlin, int tamcol, int *qtnumlin, int *qtnumcol, char **matc){
+    int contaxlin, contaxcol, lincerta = 0, colcerta = 0, somalin = 0, somacol = 0;;
+    
+    // Verifica se as linhas estao corretas.
+    for (int i = 0; i < tamlin; i++){
+        contaxlin = 0;
+        somalin = 0;
+        for (int k = 0; k < qtnumlin[i]; k++){
+                somalin += lin[i][k];
+            }
+        for (int j = 0; j < tamcol; j++){
+            if(matc[i][j] == 'x'){
+                contaxlin++;
+            }
+        }
+        if (contaxlin == somalin){
+            lincerta++;
+        }
+    }
+    
+    //Verifica se as colunas estao corretas.
+    for (int i = 0; i < tamcol; i++){
+        contaxcol = 0;
+        somacol = 0;
+        // Soma os valores maximos de marcacoes possiveis para cada coluns
+        for (int k = 0; k < qtnumcol[i]; k++){
+                somacol += col[i][k];
+            }
+        
+        // Verifica se a quantidade de marcacoes estao corretas
+        for (int j = 0; j < tamlin; j++){
+            if(matc[j][i] == 'x'){
+                contaxcol++;
+            }
+        }
+        if (contaxcol == somacol){
+            colcerta++;
+        }
+    }
+
+    // Verifica se ganhou.
+    if (lincerta == tamlin && colcerta == tamcol){
+        printf("\n\nParabens, o jogo foi concluido com sucesso!\n\n");
+    }
+    
 }
 
 int main(int argc, char **argv){
     // Abrindo o arquivo.
     FILE *entrada = fopen(argv[1],"r");
+    
+    // Verifica se o arquivo foi aberto com sucesso.
+    if (entrada == NULL) {
+        printf("Erro ao abrir o arquivo");
+        return 0;
+    }
 
     // Armazena a entrada da matriz.
     int tamlin, tamcol;
@@ -271,7 +364,7 @@ int main(int argc, char **argv){
     else
         numspc = (maiorqlin*3 + 1)+ 1;
 
-    // Armazena os valores da matriz do cabecalho das colunas.
+    // Armazena a matriz do cabecalho das colunas.
     int  *qtnumcol;
     int **col;
     
@@ -311,7 +404,7 @@ int main(int argc, char **argv){
     printf("\n.         BA          Limpa a célula da linha B e coluna A.");
     printf("\nsalvar    out.txt     Salva o Nonograma tal como está no momento no arquivo out.txt");
     printf("\nsair                  Encerra o programa (sem salvar as últimas alterações).\n");
-    printf("\n\nBem vindo ao Nonograma! \n\n"); 
+    printf("\nBem vindo ao Nonograma! \n\n"); 
     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
 
@@ -320,19 +413,20 @@ int main(int argc, char **argv){
     int val, posicaotxt, contanomearq = 0; // Variavel val serve para retornar o valor da validacao.
     int linaces, colaces;
     do{
+        verificaGanhou(lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
         printf("\n\nDigite um comando: ");
 
         //__fpurge(stdin);
         fflush(stdin);
         scanf(" %8s", comando); 
-        //printf("\ec \e[3j");
+        printf("\ec \e[3j");
         // Validando o comando.
         if(strcmp(comando,"x") != 0 && strcmp(comando,"X") != 0 && strcmp(comando,"-") != 0 && strcmp(comando,".") != 0 && 
             strcmp(comando,"salvar") != 0 && strcmp(comando,"sair") != 0){
             printf("\n\n");
             imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
             imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
-            printf("\n\nComando invalido!\n\n");
+            printf("\n\nComando invalido!\n");
             continue;
         }
 
@@ -366,11 +460,17 @@ int main(int argc, char **argv){
                 // Verifica se esta infringindo alguma regra.
                 linaces = arg[0] - 'A';
                 colaces = arg[1] - 'A';
-                val = regrasNonograma(lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
-                if(val != 0){
+                val = regrasNonograma(lin, col, linaces, colaces, tamlin, tamcol, qtnumlin, qtnumcol, matc);
+                if(val == 0){
                     matc[linaces][colaces] = 'x';
                     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                    continue;
+                }
+                else{
+                    imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
+                    imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                    printaValidacao(val); 
                     continue;
                 }
             }
@@ -446,8 +546,7 @@ int main(int argc, char **argv){
         if(strcmp(comando,"salvar") == 0){
             //__fpurge(stdin);
             scanf(" %s", nomearq);
-            imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
-            imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+            
             if (strlen(nomearq) > 254){
                 printf("\n\nSem sucesso no salvamento!\nNome do arquivo muito extenso!\n");
                 continue;
@@ -463,8 +562,8 @@ int main(int argc, char **argv){
                 vernomearq[contanomearq] = nomearq[i];
                 contanomearq++;
             }
-
             vernomearq[4] = '\0';
+            
             if (strcmp(vernomearq, ".txt") != 0){
                 printf("\n\nSem sucesso no salvamento!\nO .txt deve ser adicionado logo apos o nome do arquivo!\n");
                 continue;
