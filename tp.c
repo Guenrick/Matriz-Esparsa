@@ -419,11 +419,11 @@ int main(int argc, char **argv){
         //__fpurge(stdin);
         fflush(stdin);
         scanf(" %8s", comando); 
-        printf("\ec \e[3j");
         // Validando o comando.
         if(strcmp(comando,"x") != 0 && strcmp(comando,"X") != 0 && strcmp(comando,"-") != 0 && strcmp(comando,".") != 0 && 
             strcmp(comando,"salvar") != 0 && strcmp(comando,"sair") != 0){
             printf("\n\n");
+            printf("\ec \e[3j");
             imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
             imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
             printf("\n\nComando invalido!\n");
@@ -441,6 +441,7 @@ int main(int argc, char **argv){
             val = valida(arg, tamlin, tamcol);
             
             if(val != 0){
+                printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printaValidacao(val);
@@ -449,6 +450,7 @@ int main(int argc, char **argv){
 
             // Avisa ao usuario que a area ja esta marcada.
             if (matc[arg[0] - 'A'][arg[1] - 'A'] == 'x'){
+                printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printf("\n\nEsta celula ja esta marcada com x!\n\n");
@@ -462,12 +464,14 @@ int main(int argc, char **argv){
                 colaces = arg[1] - 'A';
                 val = regrasNonograma(lin, col, linaces, colaces, tamlin, tamcol, qtnumlin, qtnumcol, matc);
                 if(val == 0){
+                    printf("\ec \e[3j");
                     matc[linaces][colaces] = 'x';
                     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                     continue;
                 }
                 else{
+                    printf("\ec \e[3j");
                     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                     printaValidacao(val); 
@@ -486,6 +490,7 @@ int main(int argc, char **argv){
             val = valida(arg, tamlin, tamcol);
             
             if(val != 0){
+                printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printaValidacao(val);
@@ -494,6 +499,7 @@ int main(int argc, char **argv){
 
             // Avisa ao usuario que a area ja esta marcada.
             if (matc[arg[0] - 'A'][arg[1] - 'A'] == '-'){
+                printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printf("\n\nEsta celula ja esta marcada com -!\n\n");
@@ -502,10 +508,11 @@ int main(int argc, char **argv){
             
             // Substitui a variavel normalmente caso nao tenha nenhum problema.
             else{
-            matc[arg[0] - 'A'][arg[1] - 'A'] = '-';
-            imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
-            imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
-            continue;
+                printf("\ec \e[3j");    
+                matc[arg[0] - 'A'][arg[1] - 'A'] = '-';
+                imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
+                imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                continue;
             }
         }
         
@@ -519,6 +526,7 @@ int main(int argc, char **argv){
             val = valida(arg, tamlin, tamcol);
 
             if(val != 0){
+                printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printaValidacao(val);
@@ -527,6 +535,7 @@ int main(int argc, char **argv){
 
             // Avisa ao usuario que a area ja esta marcada.
             if (matc[arg[0] - 'A'][arg[1] - 'A'] == '.'){
+                printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printf("\n\nEsta celula ja esta marcada com ponto!\n\n");
@@ -536,6 +545,7 @@ int main(int argc, char **argv){
             // Substitui a variavel normalmente caso nao tenha nenhum problema.
             else{
             matc[arg[0] - 'A'][arg[1] - 'A'] = '.';
+            printf("\ec \e[3j");
             imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
             imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
             continue;
