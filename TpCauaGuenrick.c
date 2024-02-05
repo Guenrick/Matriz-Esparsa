@@ -445,7 +445,6 @@ int main(int argc, char **argv){
         // Argumentos a serem digitados.
         // Substituindo por "x".
         if(strcmp(comando,"x") == 0 || strcmp(comando,"X") == 0){ 
-            //__fpurge(stdin);
             scanf(" %3s", arg);
             printf("\n\n");
 
@@ -495,7 +494,6 @@ int main(int argc, char **argv){
 
         // Substituindo por "-".
         if(strcmp(comando,"-") == 0){
-            //__fpurge(stdin);
             scanf(" %3s", arg);
             printf("\n\n");
 
@@ -531,14 +529,13 @@ int main(int argc, char **argv){
         
         // Substituindo por ".".
         if(strcmp(comando,".") == 0){
-            //__fpurge(stdin);
             scanf(" %3s", arg);
             printf("\n\n");
 
             // Validacao dos argumentos.
             val = valida(arg, tamlin, tamcol);
 
-            if(val != 0){///printf("\ec \e[3j");{
+            if(val != 0){
                 printaInstrucoes();
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
