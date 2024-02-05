@@ -34,22 +34,22 @@ void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc)
         for (int i = 0; i < numspc; i++){
             printf(" ");
         }
-        
+        // Imprime os espacos
         for (int j = 0; j < tamanhocol; j++){
             if(vdespc[j] > 0){
                 vdespc[j]--;
                 vdespcaux[j]--;
                 printf("   ");
             }
-
+        // Imprime os valores da matriz 
             else if(test > j) {
-                printf(" %-3d", matcol[j][vdespcaux[j]]);//tinha i ali. pensar sobre essa variaçao.
+                printf(" %-3d", matcol[j][vdespcaux[j]]);
                 vdespcaux[j]++;
                 test = -1;
             }
 
             else if(matcol[j][vdespcaux[j]] >= 10) {
-                printf("%d", matcol[j][vdespcaux[j]]);//tinha i ali. pensar sobre essa variaçao.
+                printf("%d", matcol[j][vdespcaux[j]]);
                 vdespcaux[j]++;
                 test = j + 100;
             }
@@ -65,11 +65,13 @@ void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc)
     for (int i = 0; i < numspc; i++){
         printf(" ");
     }
-
+    // Imprime as letras necessarias.
     for (int i = 0; i < tamanhocol; i++){
         printf("%c  ", 'A' + i);
     }
     printf("\n");
+
+    // Libera memoria usada na funcao.
     free(vdespc);
     free(vdespcaux);
 }
@@ -357,7 +359,7 @@ int main(int argc, char **argv){
         }
     }   
     
-    // Descobrindo a quantidade de espacos (numspc) necessarios para as linhas.
+    // Calculando a quantidade de espacos (numspc) necessarios para as linhas.
     int numspc;
     if (cont10 > 0)
         numspc = (maiorqlin + 1)*3 + 1;
@@ -380,10 +382,11 @@ int main(int argc, char **argv){
     }   
     
     // Armazena a matriz de caracteres (a que sera alterada pelo usuario).
-    char **matc = malloc(tamlin * sizeof(char*)), rechar;
+    char **matc = malloc(tamlin * sizeof(char*)), rechar; // rechar e basicamente uma variavel auxiliar que recebe a matriz de char e decide o que sera impresso.
     for (int i = 0; i < tamlin; i++){
         matc[i] = malloc(tamcol * sizeof(char));
     }
+
     for (int i = 0; i < tamlin; i++){
         for (int j = 0; j < tamcol; j++){
             //__fpurge(stdin); // Limpa buffer.
@@ -409,21 +412,20 @@ int main(int argc, char **argv){
     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
 
     // Looping de comandos.    
-    char comando[9], arg[4], nomearq[256], vernomearq[5]; 
-    int val, posicaotxt, contanomearq = 0; // Variavel val serve para retornar o valor da validacao.
-    int linaces, colaces;
+    char comando[9], arg[4], nomearq[257]; 
+    int val; // Variavel val serve para retornar o valor da validacao.
+    int linaces, colaces; // Sao as coordenadas de acesso para a celula que o usuario digitou.
     do{
-        verificaGanhou(lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
         printf("\n\nDigite um comando: ");
 
-        //__fpurge(stdin);
+        //__fpurge(stdin); limpa buffer
         fflush(stdin);
         scanf(" %8s", comando); 
         // Validando o comando.
         if(strcmp(comando,"x") != 0 && strcmp(comando,"X") != 0 && strcmp(comando,"-") != 0 && strcmp(comando,".") != 0 && 
             strcmp(comando,"salvar") != 0 && strcmp(comando,"sair") != 0){
             printf("\n\n");
-            printf("\ec \e[3j");
+            ///printf("\ec \e[3j");
             imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
             imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
             printf("\n\nComando invalido!\n");
@@ -441,16 +443,15 @@ int main(int argc, char **argv){
             val = valida(arg, tamlin, tamcol);
             
             if(val != 0){
-                printf("\ec \e[3j");
-                imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
-                imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                                imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
+               imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printaValidacao(val);
                 continue;
             }
 
             // Avisa ao usuario que a area ja esta marcada.
             if (matc[arg[0] - 'A'][arg[1] - 'A'] == 'x'){
-                printf("\ec \e[3j");
+                ///printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printf("\n\nEsta celula ja esta marcada com x!\n\n");
@@ -464,14 +465,15 @@ int main(int argc, char **argv){
                 colaces = arg[1] - 'A';
                 val = regrasNonograma(lin, col, linaces, colaces, tamlin, tamcol, qtnumlin, qtnumcol, matc);
                 if(val == 0){
-                    printf("\ec \e[3j");
+                    ///printf("\ec \e[3j");
                     matc[linaces][colaces] = 'x';
                     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                    verificaGanhou(lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
                     continue;
                 }
                 else{
-                    printf("\ec \e[3j");
+                    ///printf("\ec \e[3j");
                     imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                     imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                     printaValidacao(val); 
@@ -490,7 +492,7 @@ int main(int argc, char **argv){
             val = valida(arg, tamlin, tamcol);
             
             if(val != 0){
-                printf("\ec \e[3j");
+                ///printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printaValidacao(val);
@@ -499,7 +501,7 @@ int main(int argc, char **argv){
 
             // Avisa ao usuario que a area ja esta marcada.
             if (matc[arg[0] - 'A'][arg[1] - 'A'] == '-'){
-                printf("\ec \e[3j");
+                ///printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printf("\n\nEsta celula ja esta marcada com -!\n\n");
@@ -508,7 +510,7 @@ int main(int argc, char **argv){
             
             // Substitui a variavel normalmente caso nao tenha nenhum problema.
             else{
-                printf("\ec \e[3j");    
+                ///printf("\ec \e[3j");    
                 matc[arg[0] - 'A'][arg[1] - 'A'] = '-';
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
@@ -526,7 +528,7 @@ int main(int argc, char **argv){
             val = valida(arg, tamlin, tamcol);
 
             if(val != 0){
-                printf("\ec \e[3j");
+                ///printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printaValidacao(val);
@@ -535,7 +537,7 @@ int main(int argc, char **argv){
 
             // Avisa ao usuario que a area ja esta marcada.
             if (matc[arg[0] - 'A'][arg[1] - 'A'] == '.'){
-                printf("\ec \e[3j");
+                ///printf("\ec \e[3j");
                 imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
                 imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
                 printf("\n\nEsta celula ja esta marcada com ponto!\n\n");
@@ -544,41 +546,24 @@ int main(int argc, char **argv){
             
             // Substitui a variavel normalmente caso nao tenha nenhum problema.
             else{
-            matc[arg[0] - 'A'][arg[1] - 'A'] = '.';
-            printf("\ec \e[3j");
-            imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
-            imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
-            continue;
+                matc[arg[0] - 'A'][arg[1] - 'A'] = '.';
+                ///printf("\ec \e[3j");
+                imprimeCabecalhocol(qtnumcol, tamcol, col, numspc);
+                imprimeCabecalholin(qtnumlin, tamlin, lin, maiorqlin, maiornum, matc, tamcol);
+                continue;
             }
         }
 
         // Comando para salvar o jogo.
-        if(strcmp(comando,"salvar") == 0){
+        if(strcmp(comando,"salvar") == 0 || strcmp(comando,"SALVAR") == 0 || strcmp(comando,"Salvar") == 0){
             //__fpurge(stdin);
             scanf(" %s", nomearq);
             
-            if (strlen(nomearq) > 254){
+            if (strlen(nomearq) > 256){
                 printf("\n\nSem sucesso no salvamento!\nNome do arquivo muito extenso!\n");
                 continue;
             }
 
-            if (strlen(nomearq) < 5){
-                printf("\n\nO nome do aquivo deve ser digitado juntamente com o .txt");
-                continue;
-            }
-            
-            posicaotxt = strlen(nomearq) - 4; 
-            for (int i = posicaotxt; i < strlen(nomearq); i++){
-                vernomearq[contanomearq] = nomearq[i];
-                contanomearq++;
-            }
-            vernomearq[4] = '\0';
-            
-            if (strcmp(vernomearq, ".txt") != 0){
-                printf("\n\nSem sucesso no salvamento!\nO .txt deve ser adicionado logo apos o nome do arquivo!\n");
-                continue;
-            }
-            
             salvaNonograma(nomearq, lin, col, tamlin, tamcol, qtnumlin, qtnumcol, matc);
             continue;
         }
@@ -590,7 +575,6 @@ int main(int argc, char **argv){
 
     } while (1);
     
-
     // Fechando arquivo de entrada.
     fclose(entrada);
 
