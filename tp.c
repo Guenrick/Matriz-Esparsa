@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-//#include <stdio_ext.h>
+#include <stdio_ext.h>
 
 void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc){
     int maiornum = matcol[0][0];
@@ -213,8 +213,7 @@ void salvaNonograma(char nomearq[], int **lin, int **col, int tamlin, int tamcol
     // Salva a matriz de char editada pelo usuario.
     for (int i = 0; i < tamlin; i++){
         for (int j = 0; j < tamcol; j++){
-            //__fpurge
-            (stdin);
+            __fpurge(stdin);
             fprintf(salva, "%c ", matc[i][j]);
         }
         fprintf(salva, "\n");   
@@ -389,7 +388,7 @@ int main(int argc, char **argv){
 
     for (int i = 0; i < tamlin; i++){
         for (int j = 0; j < tamcol; j++){
-            //__fpurge(stdin); // Limpa buffer.
+            __fpurge(stdin);
             fscanf(entrada, " %c", &rechar);
             if(rechar == '\n' || rechar == ' '){
             j--;
@@ -419,7 +418,6 @@ int main(int argc, char **argv){
         printf("\n\nDigite um comando: ");
 
         //__fpurge(stdin); limpa buffer
-        fflush(stdin);
         scanf(" %8s", comando); 
         // Validando o comando.
         if(strcmp(comando,"x") != 0 && strcmp(comando,"X") != 0 && strcmp(comando,"-") != 0 && strcmp(comando,".") != 0 && 
@@ -569,7 +567,7 @@ int main(int argc, char **argv){
         }
         
         // Comando para sair do jogo.
-        if(strcmp(comando,"sair") == 0){
+        if(strcmp(comando,"sair") == 0 || strcmp(comando,"SAIR") == 0 || strcmp(comando,"Sair")){
             break;
         }
 
