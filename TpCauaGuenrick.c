@@ -7,6 +7,7 @@
 void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc){
     int maiornum = matcol[0][0];
     int maiorq = qnumero[0];   
+    
     // Verifica qual o maior valor da matriz para conferir se é maior que 10.
     for (int i = 0; i < tamanhocol; i++){ 
         for (int j = 0; j < qnumero[i]; j++){
@@ -41,7 +42,7 @@ void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc)
                 vdespcaux[j]--;
                 printf("   ");
             }
-        // Imprime os valores da matriz 
+            // Imprime os valores da matriz 
             else if(test > j) {
                 printf(" %-3d", matcol[j][vdespcaux[j]]);
                 vdespcaux[j]++;
@@ -65,7 +66,7 @@ void imprimeCabecalhocol(int *qnumero, int tamanhocol, int **matcol, int numspc)
     for (int i = 0; i < numspc; i++){
         printf(" ");
     }
-    // Imprime as letras necessarias.
+    // Imprime as letras.
     for (int i = 0; i < tamanhocol; i++){
         printf("%c  ", 'A' + i);
     }
