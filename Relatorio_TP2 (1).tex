@@ -1,0 +1,368 @@
+\documentclass{article}
+
+\input{setup}
+
+\begin{document}
+
+\CAPA{Trabalho Prático 2}{BCC202 - Estrutura de Dados 1}{Eduardo Henrique Fernandes Marques e Caua Guenrick Alves}{Pedro Silva}
+
+
+\section{Introdução}
+
+Neste trabalho prático de Estrutura de Dados I, foi implementado o Jogo da Vida na linguagem C. O jogo consiste em uma matriz composta por zeros e uns, que se altera ao longo das gerações conforme as regras de evolução das células.
+
+
+\subsection{Considerações iniciais}
+
+Algumas ferramentas foram utilizadas durante a criação deste projeto:
+
+\begin{itemize}
+  \item Ambiente de desenvolvimento do código fonte: Visual Studio Code. \footnote{Visual Studio Code está disponível em \url{https://code.visualstudio.com/}}
+  \item Linguagem utilizada: C.
+  \item Ambiente de desenvolvimento da documentação: Overleaf \LaTeX. \footnote{Disponível em \url{https://www.overleaf.com/}}
+\end{itemize}
+
+\subsection{Ferramentas utilizadas}
+Algumas ferramentas foram utilizadas para testar a implementação, como:
+\begin{itemize}
+    \item[-] \textit{Valgrind}: ferramentas de análise dinâmica do código.
+\end{itemize}
+
+\subsection{Especificações da máquina}
+A máquina onde o desenvolvimento e os testes foram realizados possui a seguinte configuração:
+\begin{itemize}
+    \item[-] Processador: Ryzen 7 5700u.
+    \item[-] Memória RAM: 8Gb.
+    \item[-] Sistema Operacional: Windows 11.
+\end{itemize}
+
+\subsection{Instruções de compilação e execução}
+
+Para a compilação do projeto, basta digitar:
+
+\begin{tcolorbox}[title=Compilando o projeto,width=\linewidth]
+    gcc -c matriz.c -Wall
+    gcc -c automato.c -Wall
+    gcc -c tp.c -Wall
+    gcc matriz.o automato.o tp.o -o exe
+\end{tcolorbox}
+
+Usou-se para a compilação as seguintes opções:
+\begin{itemize}
+    \item [-] \emph{-Wall}: para mostrar todos os possível \emph{warnings} do código.
+\end{itemize}
+
+Para a execução do programa basta digitar:
+\begin{tcolorbox}[title=,width=\linewidth]
+    ./exe
+\end{tcolorbox}
+
+
+\clearpage
+\section{Desenvolvimento}
+
+\noindent O trabalho foi dividido em cinco funções: alocarReticulado, desalocarReticulado, alocaNo, pesquisaAutomato, adicionaNo, evoluirReticulado, imprimeReticulado e copiaMatriz. Além disso, foi utilizado o TAD Matriz, que possui uma struct chamada MatrizEsp e uma struct chamada Node. Foram criadas também a biblioteca automato.h e sua implementação em automato.c, bem como a biblioteca matriz.h e sua implementação.
+
+O desenvolvimento da função evoluirReticulado é o mais complexo, com 80 linhas. Na primeira parte, é feita a verificação do estado de vida das células ao redor da célula verificada. Em seguida, há uma sequência de condicionais para validar as regras do jogo. Ao final, é realizada uma chamada recursiva, com decremento da geração. Na função main, há a aplicação dos TADs, juntamente com todas as funções.
+
+
+\subsection{Estruturas e funcoes principais}
+
+Abaixo está uma visão geral das principais estruturas de dados e funções utilizadas no projeto:
+
+\begin{verbatim}
+// Estrutura do nó para percorrer a matriz
+typedef struct node{
+    int lin;
+    int col;
+    struct node *right;
+    struct node *down;
+} Node;
+
+// Estrutura da matriz com cabeças para percorrer a matriz
+typedef struct{
+    int tam;
+    Node *cabecaCol;
+    Node *cabecaLin;
+} MatrizEsp;
+
+// Função para alocar o nó
+Node *alocaNo(){
+    Node *newNode = (Node*)malloc(sizeof(Node));
+    newNode->right = NULL;
+    newNode->down = NULL;
+    return newNode;
+}
+
+// Função para alocar o reticulado
+MatrizEsp* alocaReticulado(int tam){
+    MatrizEsp *matriz = (MatrizEsp*)malloc(sizeof(MatrizEsp));
+    matriz->cabecaCol = (Node*)malloc(sizeof(Node));
+    matriz->cabecaLin = (Node*)malloc(sizeof(Node));
+    matriz->tam = tam;
+    Node *aux = matriz->cabecaCol;
+    Node *aux2 = matriz->cabecaLin;
+    for (int i = 0; i < matriz->tam; i++) {
+        // Aloca cabeça de coluna e atribui seu índice.
+        aux->right = alocaNo();
+        aux->right->col = i;
+        aux->right->lin = -1;
+        // Aloca cabeça de linha e atribui seu índice.
+        aux2->down = alocaNo();
+        aux2->down->col = -1;
+        aux2->down->lin = i;
+        // Movendo para adicionar próxima cabeça.
+        aux = aux->right;
+        aux2 = aux2->down;
+    }
+    return matriz;
+}
+
+// Função para desalocar o reticulado
+void desalocarReticulado(MatrizEsp* matriz){
+    Node *aux = matriz->cabecaCol->right;
+    Node *aux2 = matriz->cabecaLin;
+    Node *aux3;
+    Node *aux4;
+    aux3 = aux;
+    // Desalocando as cabeças da coluna e o reticulado
+    while (aux->right != NULL) {
+        aux4 = aux3->down;
+        aux3 = aux4;
+        free(aux4);
+        if (aux3 == NULL) {
+            aux = aux->right;
+            aux3 = aux;
+        }
+    }
+    // Desalocando as cabeças das linhas
+    while(aux2->down != NULL){
+        aux4 = aux2;
+        aux2 = aux4->down;
+        free(aux4);
+    }
+    free(matriz->cabecaCol);
+}
+
+// Função para pesquisa de autômato
+bool pesquisaAutomato(MatrizEsp* matriz , int lin, int col){
+    // Pesquisa de autômato baseada em linha e coluna
+    Node *aux = matriz->cabecaLin;
+    // While para chegar na cabeça da linha a ser analisada
+    for (int i = 0; i <= lin; i++) {
+        aux = aux->down;
+    }
+    // Compara índices dos autômatos. Se encontrar, retorna true
+    while (aux != NULL) {
+        if (aux->col == col) {
+            return true; // Se retorna true, autômato está vivo
+        }
+        aux = aux->right;
+    }
+    return false; // Se retorna false, autômato está morto
+}
+
+// Função para ler o reticulado
+void aidicionaNo(MatrizEsp* matriz, int lin, int col) {
+    Node* newNode = alocaNo();
+    Node *aux = matriz->cabecaCol;
+    Node *aux2 = matriz->cabecaLin;
+    newNode->lin = lin;
+    newNode->col = col;
+    // Vai até a cabeça da coluna correta
+    for (int i = 0; i <= col; i++) {
+        aux = aux->right;
+    }
+    // Vai até a cabeça da linha correta
+    for (int i = 0; i <= lin; i++) {
+        aux2 = aux2->down;
+    }
+    // Inserção na lista de colunas (down)
+    Node *atual = aux->down;
+    Node *prev = aux; // Começa pela cabeça da coluna
+    while (atual != NULL && atual->lin < lin) {
+        prev = atual;
+        atual = atual->down;
+    }
+    // Insere o novo nó na posição correta na coluna
+    prev->down = newNode;
+    newNode->down = atual;
+    // Inserção na lista de linhas (right)
+    atual = aux2->right;
+    prev = aux2; // Começa pela cabeça da linha
+    while (atual != NULL && atual->col < col) {
+        prev = atual;
+        atual = atual->right;
+    }
+    // Insere o novo nó na posição correta na linha
+    prev->right = newNode;
+    newNode->right = atual;
+}
+
+// Função para imprimir o reticulado
+void imprimeReticulado(MatrizEsp* matriz){
+    for (int i = 0; i < matriz->tam; i++) {
+        printf("\n");
+        for (int j = 0; j < matriz->tam; j++) {
+            if (pesquisaAutomato(matriz, i, j))
+                printf("1 ");
+            else
+                printf("0 ");
+        }
+    }
+}
+
+// Função para copiar o reticulado para o reticulado auxiliar
+void copiaMatriz(MatrizEsp* matriz,MatrizEsp* copia){
+    for (int i = 0; i < matriz->tam; i++) {
+        for (int j = 0; j < matriz->tam; j++) {
+            if (pesquisaAutomato(matriz, i, j))
+                adicionaNo(copia, i, j);
+        }
+    }
+}
+
+// Função para evoluir o reticulado de acordo com as regras do jogo
+MatrizEsp* evoluirReticulado(MatrizEsp* matriz, MatrizEsp* matrizAux,int tam,int gen){ 
+//Complexidade da funcao: O(n²)
+  //Variavel para armazenar o valor das celulas ao redor da celula que está sendo verificada
+int verifica;
+
+//Decrementacao feita para evitar uma evolucao a mais
+gen--;
+
+//Desaloca e aloca o reticulado auxiliar novamente
+desalocarReticulado(matrizAux);
+matrizAux = alocaReticulado(tam);
+//lacos de repeticao para verificar quantas celulas vivas possuem ao redor da celula que está
+sendo verificada
+for (int j = 0; j < tam; j++)
+{
+for (int k = 0; k < tam; k++)
+{
+    //00
+    if(j==0 && k==0){
+        verifica = pesquisaAutomato(matriz, j, k+1) + 
+        pesquisaAutomato(matriz, j+1, k+1) + pesquisaAutomato(matriz, j+1, k);
+    }
+    //04
+    else if(j==0 && k==tam-1){
+        verifica = pesquisaAutomato(matriz, j, k-1) + 
+        pesquisaAutomato(matriz, j+1, k-1) + pesquisaAutomato(matriz, j+1, k);
+    }
+    //44
+    else if(j==tam-1 && k==tam-1){
+        verifica = pesquisaAutomato(matriz, j-1, k) + 
+        pesquisaAutomato(matriz, j-1, k-1) + pesquisaAutomato(matriz, j, k-1);
+    }
+    //40
+    else if(j==tam-1 && k==0){
+        verifica = pesquisaAutomato(matriz, j-1, k) + 
+        pesquisaAutomato(matriz, j-1, k+1) + pesquisaAutomato(matriz, j, k+1);
+    }
+    //cima
+    else if(j==0 && k>0 && k<tam-1){
+        verifica = pesquisaAutomato(matriz, j, k-1) + 
+        pesquisaAutomato(matriz, j+1, k-1) + pesquisaAutomato(matriz, j+1, k) +
+        pesquisaAutomato(matriz, j+1, k+1) + pesquisaAutomato(matriz, j, k+1);
+    }
+    //direita
+    else if(k==tam-1 && j>0 && j<tam-1){
+        verifica = pesquisaAutomato(matriz, j-1, k-1) + 
+        pesquisaAutomato(matriz, j-1, k) +  pesquisaAutomato(matriz, j+1, k) +
+        pesquisaAutomato(matriz, j+1, k-1) + pesquisaAutomato(matriz, j, k-1);
+    }
+    //baixo
+    else if(j==tam-1 && k>0 && k<tam-1){
+        verifica = pesquisaAutomato(matriz, j-1, k-1) + 
+        pesquisaAutomato(matriz, j-1, k) + pesquisaAutomato(matriz, j-1, k+1) +
+        pesquisaAutomato(matriz, j, k+1) +  pesquisaAutomato(matriz, j, k-1);
+    }
+    //esquerda
+    else if(k==0 && j>0 && j<tam-1){
+        verifica = pesquisaAutomato(matriz, j-1, k) + 
+        pesquisaAutomato(matriz, j-1, k+1) + pesquisaAutomato(matriz, j, k+1) +  
+        pesquisaAutomato(matriz, j+1, k+1) + pesquisaAutomato(matriz, j+1, k);
+    }
+    
+    else{
+        verifica = pesquisaAutomato(matriz, j-1, k-1) + 
+        pesquisaAutomato(matriz, j-1, k) +
+        pesquisaAutomato(matriz, j-1, k+1)+ pesquisaAutomato(matriz, j, k+1) + 
+        pesquisaAutomato(matriz, j+1, k+1) + 
+        pesquisaAutomato(matriz, j+1, k) + pesquisaAutomato(matriz, j+1, k-1) + 
+        pesquisaAutomato(matriz, j, k-1);
+    }
+    
+    //Sequencia de condicionais para validar as regras
+
+    //regra para se manter viva
+    if(verifica>1 && verifica<4 && pesquisaAutomato(matriz,j,k))
+        adicionaNo(matrizAux,j,k);
+    //regra para uma célula morta renascer
+    else if(verifica==3 && !pesquisaAutomato(matrizAux,j,k))
+        adicionaNo(matrizAux,j,k);
+    //caso nenhuma regra se aplique a célula continua morta
+    }
+    
+}
+//Passando os valores recebidos pela matriz auxiliar na verificacao para a matriz do reticulado
+desalocarReticulado(matriz);
+matriz = alocaReticulado(tam);
+copiaMatriz(matrizAux,matriz);
+
+//Chamada recursiva
+if(gen>0){
+    matriz = evoluirReticulado(matriz,matrizAux,tam, gen--);
+}
+
+return matriz;
+}
+
+A função evoluirReticulado é responsável por atualizar o estado da matriz do reticulado 
+conforme as regras do Jogo da Vida.
+A função também faz uso de uma matriz auxiliar para armazenar temporariamente os novos estados
+das células, antes de transferi-los de volta para a matriz principal.
+\end{verbatim}
+
+\clearpage
+\section{Experimetos}
+  Foram realizados todos os testes disponíveis. Utilizamos o Valgrind para verificar se havia algum vazamento de memória e usamos o corretor em Python, conforme demonstrado nas imagens a seguir:
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.5\linewidth]{teste 5-3 tp2.png}
+    \caption{Teste 5-3}
+    \label{fig:enter-labe}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.5\linewidth]{valgrind tp2.png}
+    \caption{Valgrind}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.5\linewidth]{phyton tp2.png}
+    \caption{Corretor Phyton}
+    \label{fig:enter-label}
+\end{figure}
+
+Na Figura 1, vemos os resultados do Teste 5-3, enquanto a Figura 2 exibe o resultado da análise de memória realizada pelo Valgrind, confirmando a ausência de vazamentos. Por fim, a Figura 3 mostra a execução do corretor em Python, que valida a correção dos resultados obtidos pelo nosso programa.
+
+\section{Resultados}
+
+Após a solução de alguns erros, os resultados foram como esperados, e o programa foi executado normalmente. A solução que encontramos utiliza o mínimo possível de laços de repetição; entretanto, o lado negativo foi a necessidade de utilizar muitas estruturas condicionais. Em relação à complexidade da função evoluir, a complexidade de tempo é O(n²).
+
+\section{Considerações Finais}
+ As principais dificuldades que encontramos foram a aplicação da matriz esparsa utilizando listas encadeadas, na qual foi necessária uma manipulação complexa de ponteiros, além de alguns erros inesperados na execução do código. Ao finalizar este trabalho, os conhecimentos em listas encadeadas e criação de CRUDs ficaram bem consolidados, além de termos melhorado nossa capacidade de depuração.
+
+\bibliographystyle{plain}
+\bibliography{refs}
+Andrew Ilachinski. Cellular automata: a discrete universe. World Scientific, 2001. Martin
+Gardner. Mathematical games: The fantastic combinations of john conway’s new solitaire game
+“life”. Scientific American, 223(4):120–123, 1970.
+
+\end{document}
